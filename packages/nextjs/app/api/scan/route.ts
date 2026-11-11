@@ -6,6 +6,7 @@ import { fetchZerionScanData } from "~~/utils/recovery/zerion";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const reqId = mkReqId();
@@ -49,6 +50,9 @@ export async function POST(req: Request) {
     const se = safeErr(e);
     log.error("fatal", se);
     const message = e instanceof Error ? e.message : "Bad request";
-    return NextResponse.json({ error: message, reqId }, { status: 400 });
+    const name = e instanceof Error ? e.name : "";
+    const status =
+      name === "TimeoutError" || name === "AbortError" ? 504 : /^Zerion .* error \d+/.test(message) ? 502 : 400;
+    return NextResponse.json({ error: message, reqId }, { status });
   }
 }
