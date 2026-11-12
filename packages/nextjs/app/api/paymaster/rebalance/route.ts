@@ -8,6 +8,8 @@ import { requireHex, requireObject } from "~~/utils/recovery/validation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// POST may bridge/sweep sequentially with receipt waits; give it the full Pro (non-Fluid) budget.
+export const maxDuration = 300;
 
 function mkLogPrefix(reqId: string) {
   return `[hwr.paymaster.rebalance ${reqId}]`;

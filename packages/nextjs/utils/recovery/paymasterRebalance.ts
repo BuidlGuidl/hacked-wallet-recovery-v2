@@ -72,8 +72,11 @@ async function acrossGet(path: string, params: Record<string, string>) {
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), RPC_TIMEOUT_MS);
-  const res = await fetch(url.toString(), { method: "GET", signal: controller.signal }).finally(() => clearTimeout(t));
-  const text = await res.text();
+  // Keep the abort timer alive through the body read, not just the headers.
+  const { res, text } = await (async () => {
+    const res = await fetch(url.toString(), { method: "GET", signal: controller.signal });
+    return { res, text: await res.text() };
+  })().finally(() => clearTimeout(t));
   let json: any = null;
   try {
     json = JSON.parse(text);
@@ -393,7 +396,7 @@ export async function rebalancePaymasterAcross(params: {
         ],
         value: amountWei,
       })) as Hex;
-      await srcPublic.waitForTransactionReceipt({ hash: depositTxHash });
+      await srcPublic.waitForTransactionReceipt({ hash: depositTxHash, timeout: 60_000 });
 
       let status: any = null;
       try {
@@ -462,7 +465,7 @@ export async function rebalancePaymasterAcross(params: {
             maxFeePerGas,
             maxPriorityFeePerGas,
           });
-          await publicClient.waitForTransactionReceipt({ hash: sweepTxHash });
+          await publicClient.waitForTransactionReceipt({ hash: sweepTxHash, timeout: 60_000 });
         }
       }
 

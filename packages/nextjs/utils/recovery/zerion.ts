@@ -216,13 +216,15 @@ function asNumber(x: unknown): number | undefined {
   return typeof x === "number" && Number.isFinite(x) ? x : undefined;
 }
 
-async function zerionGet(apiKey: string, url: string) {
+async function zerionGet(apiKey: string, url: string, timeoutMs = 15_000) {
   const res = await fetch(url, {
     headers: {
       accept: "application/json",
       authorization: getZerionAuthHeaderValue(apiKey),
     },
     cache: "no-store",
+    // Node fetch has no default timeout; never let one slow Zerion call eat the whole function budget.
+    signal: AbortSignal.timeout(timeoutMs),
   });
   return res;
 }
@@ -241,15 +243,19 @@ async function fetchNftPositions(params: { apiKey: string; compromisedAddress: A
   const url = `https://api.zerion.io/v1/wallets/${params.compromisedAddress}/nft-positions/?currency=usd&page[size]=100`;
 
   // Zerion may respond 202 while NFT positions are still being aggregated.
-  const startedAt = Date.now();
+  // Poll within a fixed overall deadline so the scan route stays well inside its maxDuration.
+  const deadline = Date.now() + 20_000;
   let attempt = 0;
-  // Keep retries bounded (docs suggest stopping after ~2 minutes).
   while (true) {
-    const res = await zerionGet(params.apiKey, url);
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return { data: [] } as ZerionResponse;
+    const res = await zerionGet(params.apiKey, url, Math.min(15_000, remaining));
     if (res.status === 202) {
-      if (Date.now() - startedAt > 25_000) return { data: [] } as ZerionResponse;
+      await res.body?.cancel().catch(() => {});
       attempt += 1;
-      await sleep(Math.min(4000, 500 * attempt));
+      const sleepMs = Math.min(4000, 500 * attempt);
+      if (Date.now() + sleepMs >= deadline) return { data: [] } as ZerionResponse;
+      await sleep(sleepMs);
       continue;
     }
     if (!res.ok) {
@@ -570,7 +576,11 @@ export async function fetchZerionScanData(params: {
 
   const [positionsJson, nftPositionsJson] = await Promise.all([
     fetchZerionFungiblePositionsRaw({ apiKey, compromisedAddress: params.compromisedAddress }),
-    fetchNftPositions({ apiKey, compromisedAddress: params.compromisedAddress }),
+    // NFTs are best-effort: a slow/failed NFT lookup must not discard the fungible results.
+    fetchNftPositions({ apiKey, compromisedAddress: params.compromisedAddress }).catch(e => {
+      console.warn("[zerion] nft-positions failed; continuing without NFTs:", e instanceof Error ? e.message : e);
+      return { data: [] } as ZerionResponse;
+    }),
   ]);
 
   if (shouldDebugLogZerion()) {

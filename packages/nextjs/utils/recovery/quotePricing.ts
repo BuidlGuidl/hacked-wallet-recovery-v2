@@ -191,9 +191,13 @@ export function coingeckoPlatformForChainId(chainId: number): string | null {
 async function fetchJson(url: string): Promise<any> {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), coingeckoTimeoutMs());
-  const res = await fetch(url, { headers: cgHeaders(), signal: controller.signal }).finally(() => clearTimeout(t));
-  if (!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
-  return await res.json();
+  try {
+    const res = await fetch(url, { headers: cgHeaders(), signal: controller.signal });
+    if (!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
+    return await res.json();
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 export async function getNativeUsdMicrosPerToken(chainId: number): Promise<bigint | null> {
