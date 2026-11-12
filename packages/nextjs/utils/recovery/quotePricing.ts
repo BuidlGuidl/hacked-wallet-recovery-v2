@@ -121,9 +121,9 @@ export function coingeckoNativeIdForChainId(chainId: number): string | null {
     case 480: // World
     case 48900: // Zircuit
     case 57073: // Ink
-    case 81457: // Blast
     case 7777777: // Zora
     case 1868: // Soneium
+    case 747474: // Katana
       return "ethereum";
     case 137:
     case 80002:
@@ -132,8 +132,6 @@ export function coingeckoNativeIdForChainId(chainId: number): string | null {
       return "xdai";
     case 56:
       return "binancecoin";
-    case 43114:
-      return "avalanche-2";
     case 42220:
       return "celo";
     case 2020:
@@ -169,14 +167,11 @@ export function coingeckoPlatformForChainId(chainId: number): string | null {
     case 988: // Stable
     case 1868: // Soneium
     case 57073: // Ink
-    case 81457: // Blast
     case 747474: // Katana
     case 7777777: // Zora
       return null; // will be populated via warmPlatformCache() if CoinGecko knows the chain_identifier
     case 56:
       return "binance-smart-chain";
-    case 43114:
-      return "avalanche";
     case 42220:
       return "celo";
     case 2020:

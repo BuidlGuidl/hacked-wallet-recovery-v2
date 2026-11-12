@@ -18,14 +18,8 @@ import { sign7702Authorization } from "~~/utils/recovery/viem7702";
 import type { ZerionNftView, ZerionPositionsView, ZerionPositionsViewRow } from "~~/utils/recovery/zerion";
 import { type ChainWithAttributes, NETWORKS_EXTRA_DATA, getTargetNetworkById } from "~~/utils/scaffold-eth/networks";
 
-const CHAIN_ICON_EXT_BY_ID: Partial<Record<number, "svg" | "png" | "jpg" | "webp">> = {
-  // AmiChain icon set only has PNG for this chainId (as of 2026-01-30).
-  1868: "png",
-};
-
 function chainIconSrc(chainId: number): string {
-  const ext = CHAIN_ICON_EXT_BY_ID[chainId] ?? "svg";
-  return `/chains/${chainId}.${ext}`;
+  return `/chains/${chainId}.svg`;
 }
 
 function asBigInt(v: unknown): bigint | null {

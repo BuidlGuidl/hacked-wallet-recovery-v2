@@ -145,29 +145,45 @@ export type ZerionNftView = {
   isSpam?: boolean;
 };
 
+// Zerion network id -> EVM chainId (from GET /v1/chains, 2026-11-11).
+// IMPORTANT: if a network name is missing here, positions on it are dropped rather than
+// mis-labeled as Ethereum, so keep this in sync with the chains we support.
 const networkNameToChainId: Record<string, number> = {
   ethereum: 1,
-  arbitrum: 42161,
-  base: 8453,
   optimism: 10,
-  polygon: 137,
   "binance-smart-chain": 56,
-  avalanche: 43114,
-  celo: 42220,
-  blast: 81457,
-  scroll: 534352,
   xdai: 100,
-  "zksync-era": 324,
-  zora: 7777777,
-  // Additional networks we support elsewhere in the app.
-  // IMPORTANT: if a network name is missing here, we must NOT fall back to chainId=1 (Ethereum),
-  // otherwise assets will be mis-labeled as Ethereum.
+  unichain: 130,
+  polygon: 137,
   monad: 143,
   sonic: 146,
+  opbnb: 204,
+  fraxtal: 252,
+  "zksync-era": 324,
   world: 480,
-  unichain: 130,
-  stable: 988,
-  // local-only MVP: allow treating unknown networks as 31337 if requested explicitly.
+  hyperevm: 999,
+  lisk: 1135,
+  sei: 1329,
+  soneium: 1868,
+  ronin: 2020,
+  abstract: 2741,
+  megaeth: 4326,
+  mantle: 5000,
+  base: 8453,
+  plasma: 9745,
+  ape: 33139,
+  mode: 34443,
+  arbitrum: 42161,
+  celo: 42220,
+  avalanche: 43114,
+  ink: 57073,
+  linea: 59144,
+  berachain: 80094,
+  blast: 81457,
+  taiko: 167000,
+  scroll: 534352,
+  katana: 747474,
+  zora: 7777777,
 };
 
 // const chainIdToNetworkName: Record<number, string> = Object.fromEntries(

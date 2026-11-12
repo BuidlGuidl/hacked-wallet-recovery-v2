@@ -231,212 +231,41 @@ export const CREATE2_FACTORY_ABI = [
   },
 ] as const satisfies Abi;
 
+const DELEGATE = {
+  UniversalRecoveryDelegate: {
+    address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
+    abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
+  },
+} as const;
+
+/**
+ * Supported chains. Every entry must support EIP-7702 and have the delegate deployed
+ * (and the paymaster funded). Chains with a public mempool need a private/encrypted
+ * execution RPC (see EXECUTION_RPC_OVERRIDES in utils/recovery/viemServer.ts).
+ *
+ * Deliberately excluded (last checked 2026-11-11):
+ * - Avalanche (43114): C-Chain rejects type-4 (EIP-7702) transactions.
+ * - Blast (81457): official RPC offline, major providers dropped the chain.
+ * - HyperEVM (999): delegate deployed, but rejects type-4 transactions.
+ * - Polygon (137), Sonic (146), Zircuit (48900): public mempool, no private RPC option.
+ */
 const externalContracts = {
-  // 31337: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0x700b6A60ce7EaaEA56F065753d8dcB9653dbAD35",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  // },
-  // Ethereum: Public mempool, we use the flashbots RPC
-  1: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Optimism: No public mempool
-  10: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // BSC: Public mempool, we use the blinklabs RPC
-  56: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Gnosis: Public mempool, we use Shutterized RPC
-  100: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Unichain: no public mempool
-  130: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Polygon: Public mempool, no encrypted mempool solution
-  // 137: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  // },
-
-  // Monad: no public mempool
-  143: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // // Sonic: Public mempool, no encrypted mempool solution
-  // 146: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0x90b0f446179b4c61566FB41f50e45E75fDa92861",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  // },
-
-  // World: no public mempool
-  480: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Stable: Can subscribe to transactions
-  // 988: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0xD81891650795D8BA695aDF2Fd8018A3DB5d8D52b",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  //   Create2Factory: {
-  //     address: "0x4E32B2200B4C2cA464e05e87501271cEf739c2E8",
-  //     abi: CREATE2_FACTORY_ABI,
-  //   },
-  // },
-
-  // HyperEVM: Public mempool, no encrypted mempool solution
-  // 999: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  // },
-
-  // Soneium: no public mempool
-  1868: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Ronin: no public mempool
-  2020: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Mantle: no public mempool
-  5000: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Base: no public mempool
-  8453: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Arbitrum: no public mempool
-  42161: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Celo: Unknown
-  42220: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Avalanche: no public mempool
-  43114: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Zircuit: Public mempool, no encrypted mempool solution
-  // 48900: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0xD81891650795D8BA695aDF2Fd8018A3DB5d8D52b",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  //   Create2Factory: {
-  //     address: "0x4E32B2200B4C2cA464e05e87501271cEf739c2E8",
-  //     abi: CREATE2_FACTORY_ABI,
-  //   },
-  // },
-
-  // Ink: no public mempool
-  57073: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // // Blast: no public mempool
-  81457: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Katana: no public mempool
-  747474: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Zora: no public mempool
-  7777777: {
-    UniversalRecoveryDelegate: {
-      address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-      abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-    },
-  },
-
-  // Sepolia
-  // 11155111: {
-  //   UniversalRecoveryDelegate: {
-  //     address: "0x681BcBC1fBc1c8A2f1F5b4A43e6D38c5CA220892",
-  //     abi: UNIVERSAL_RECOVERY_DELEGATE_ABI,
-  //   },
-  // },
+  1: DELEGATE, // Ethereum: public mempool, executed via Flashbots
+  10: DELEGATE, // OP Mainnet
+  56: DELEGATE, // BNB Chain: public mempool, executed via blinklabs
+  100: DELEGATE, // Gnosis: public mempool, executed via Shutter encrypted RPC
+  130: DELEGATE, // Unichain
+  143: DELEGATE, // Monad
+  480: DELEGATE, // World Chain
+  1868: DELEGATE, // Soneium
+  2020: DELEGATE, // Ronin
+  5000: DELEGATE, // Mantle
+  8453: DELEGATE, // Base
+  42161: DELEGATE, // Arbitrum One
+  42220: DELEGATE, // Celo
+  57073: DELEGATE, // Ink
+  747474: DELEGATE, // Katana
+  7777777: DELEGATE, // Zora
 } as const;
 
 export default externalContracts satisfies GenericContractsDeclaration;
